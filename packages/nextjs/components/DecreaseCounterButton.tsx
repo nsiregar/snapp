@@ -1,8 +1,10 @@
 "use client";
 
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-stark/useScaffoldWriteContract";
+import { useCounter } from "~~/context/CounterContext";
 
-export const DecreaseCounterButton = ({ counter }: { counter: any }) => {
+export const DecreaseCounterButton = () => {
+  const { counter } = useCounter();
   const { sendAsync, status } = useScaffoldWriteContract({
     contractName: "CounterContract",
     functionName: "decrease_counter",

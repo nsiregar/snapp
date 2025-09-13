@@ -1,54 +1,39 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-stark/useScaffoldWriteContract";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-stark/useScaffoldReadContract";
-import { useAccount } from "~~/hooks/useAccount";
+import { useCounter } from "~~/context/CounterContext";
 
-export const SetCounterForm = ({ current }: { current: any }) => {
+export const SetCounterForm = () => {
+  const { counter, address, owner } = useCounter();
+  const [value, setValue] = useState<string>("0");
 
-  const [value, setValue] = useState<string>(
-    current !== undefined ? String(current) : "0",
-  );
+  useEffect(() => {
+    if (counter !== undefined) {
+      setValue(String(counter));
+    }
+  }, [counter]);
 
   const { sendAsync, status } = useScaffoldWriteContract({
     contractName: "CounterContract",
     functionName: "set_counter",
-    args: [],
+    args: [0],
   });
-
-  const { address } = useAccount();
-  const { data: owner } = useScaffoldReadContract({
-    contractName: "CounterContract",
-    functionName: "owner",
-  });
-
-  const normalizeToHex = (input: any): string | undefined => {
-    if (input === undefined || input === null) return undefined;
-    const raw: any = Array.isArray(input) ? input[0] : input;
-    const s = String(raw);
-    if (s.length === 0) return undefined;
-
-    return s.startsWith("0x") ? s : `0x${BigInt(s).toString(16)}`;
-  };
-
-  const addrHex = useMemo(() => normalizeToHex(address), [address]);
-  const ownerHex = useMemo(() => normalizeToHex(owner), [owner]);
 
   const isOwner = useMemo(() => {
-    if (!addrHex || !ownerHex) return false;
+    if (!address || owner === undefined) return false;
     try {
-      return BigInt(addrHex) === BigInt(ownerHex);
+      return BigInt(address) === owner;
     } catch {
       return false;
     }
-
-  }, [addrHex, ownerHex]);
+  }, [address, owner]);
 
   const isBusy = status === "pending";
   const parsed = (() => {
     const number = Number(value);
-    if (!Number.isFinite(number) || number < 0 || !Number.isInteger(number)) return undefined;
+    if (!Number.isFinite(number) || number < 0 || !Number.isInteger(number))
+      return undefined;
     return number;
   })();
 
@@ -74,11 +59,15 @@ export const SetCounterForm = ({ current }: { current: any }) => {
         type="submit"
         disabled={isBusy || parsed === undefined || !isOwner}
         title={
-          !isOwner ? "Only the owner can set" :
-            parsed === undefined ? "Enter a non-negative integer" : undefined}
+          !isOwner
+            ? "Only the owner can set"
+            : parsed === undefined
+            ? "Enter a non-negative integer"
+            : undefined
+        }
       >
         {isBusy ? "Setting..." : "Set"}
       </button>
     </form>
-  )
+  );
 };

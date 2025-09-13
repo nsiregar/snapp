@@ -1,35 +1,44 @@
 "use client";
 
-import { ConnectedAddress } from "~~/components/ConnectedAddress";
+import { CounterProvider, useCounter } from "~~/context/CounterContext";
 import { CounterValue } from "~~/components/CounterValue";
 import { IncreaseCounterButton } from "~~/components/IncreaseCounterButton";
 import { DecreaseCounterButton } from "~~/components/DecreaseCounterButton";
 import { ResetCounterButton } from "~~/components/ResetCounterButton";
 import { SetCounterForm } from "~~/components/SetCounterForm";
 import { CounterChangedEvents } from "~~/components/CounterChangedEvents";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-stark/useScaffoldReadContract";
 
-const Home = () => {
-  const { data, isLoading, error } = useScaffoldReadContract({
-    contractName: "CounterContract",
-    functionName: "get_counter",
-  });
+const CounterPage = () => {
+  const { counter, isCounterLoading, counterError } = useCounter();
 
   return (
     <div className="flex items-center flex-col grow pt-10">
       <div className="text-lg flex items-center gap-3">
-        Counter: <CounterValue value={data} isLoading={isLoading} error={error} />
+        Counter:{" "}
+        <CounterValue
+          value={counter}
+          isLoading={isCounterLoading}
+          error={counterError}
+        />
         <IncreaseCounterButton />
-        <DecreaseCounterButton counter={data} />
-        <ResetCounterButton counter={data} />
+        <DecreaseCounterButton />
+        <ResetCounterButton />
       </div>
       <div className="mt-4">
-        <SetCounterForm current={data} />
+        <SetCounterForm />
       </div>
       <div className="mt-6 w-full flex justify-center">
         <CounterChangedEvents />
       </div>
     </div>
+  );
+};
+
+const Home = () => {
+  return (
+    <CounterProvider>
+      <CounterPage />
+    </CounterProvider>
   );
 };
 

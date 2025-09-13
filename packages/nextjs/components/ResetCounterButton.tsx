@@ -3,12 +3,10 @@
 import { useScaffoldMultiWriteContract } from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-stark/useDeployedContractInfo";
 import { strkToFri } from "~~/utils/scaffold-stark/common";
+import { useCounter } from "~~/context/CounterContext";
 
-type ResetCounterButtonProps = {
-  counter: any;
-};
-
-export const ResetCounterButton = ({ counter }: ResetCounterButtonProps) => {
+export const ResetCounterButton = () => {
+  const { counter } = useCounter();
   const { data: counterContract } = useDeployedContractInfo("CounterContract");
 
   const { sendAsync, status } = useScaffoldMultiWriteContract({
