@@ -37,3 +37,7 @@ export function isValidContractArgs(
     args.every((arg) => arg !== undefined && arg !== null && arg !== "")
   );
 }
+
+export function strkToFri(amount: number) {
+  return BigInt(amount * 10 ** 18);
+}
